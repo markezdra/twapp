@@ -4,17 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Telegram Web App</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- 1) Подключаем Tailwind через CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 2) Затем ваш Telegram WebApp JS -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
-<body class="bg-white text-orange-500">
-  <h1>Welcome to Vocab Trainer!</h1>
-  <button id="startBtn">Start test</button>
+<body class="bg-white text-orange-800">  <!-- тёмно‑оранжевый текст -->
+  <h1 class="text-2xl font-bold mb-4">Welcome to Vocab Trainer!</h1>
+  <button id="startBtn"
+          class="px-4 py-2 border-2 border-orange-800 rounded hover:bg-orange-800 hover:text-white transition">
+    Start test
+  </button>
 
   <script>
-    // Инициализация
+    // Инициализация Telegram WebApp
     const tg = window.Telegram.WebApp;
-    tg.expand();      // разворачивает Web App на весь экран
+    tg.expand();
     tg.MainButton.setText("Закінчити тест");
 
     document
