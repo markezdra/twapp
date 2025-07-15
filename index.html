@@ -7,58 +7,77 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    /* Сплэш на весь экран */
+    /* Сплэш-экран на весь экран, изначально невидим */
     #splash {
       position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
+      inset: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: #ffffff;
+      background: #fff;
       opacity: 0;
       z-index: 50;
     }
+    /* fade-in за 2s до opacity:1 */
     .fade-in {
       opacity: 1;
       transition: opacity 2s ease-in-out;
     }
+    /* fade-out за 1s до opacity:0 */
     .fade-out {
       opacity: 0;
       transition: opacity 1s ease-in-out;
     }
-    /* Основной контент скрыт до появления */
+    /* Контент скрыт до появления */
     #mainContent {
       opacity: 0;
       transition: opacity 1s ease-in-out;
     }
-    #mainContent.visible {
+    /* Контент появляется */
+    #mainContent.show {
       opacity: 1;
     }
   </style>
 </head>
-<body class="bg-white text-orange-500">
+<body class="bg-white text-orange-500 overflow-hidden">
 
   <!-- 1) СПЛЭШ-СКРИН -->
   <div id="splash">
-    <!-- используем абсолютный путь, если logo.png не в корне, например:
-         src="https://raw.githubusercontent.com/ВАШ‑ЛОГИН/РЕПО/main/logo.png" -->
-    <img src="https://raw.githubusercontent.com/markezdra/twapp/main/logo.pnglarge_3084024A-6C58-4487-BBB6-78627A76B06B.png" alt="Logo" class="w-32 h-auto">
+    <img src="logo.png" alt="Logo" class="w-32 h-auto">
   </div>
 
   <!-- 2) ОСНОВНОЙ КОНТЕНТ -->
-  <div id="mainContent"
-       class="flex flex-col items-center justify-center min-h-screen p-4">
+  <div id="mainContent" class="flex flex-col items-center justify-center min-h-screen p-4">
     <h1 class="text-3xl font-bold mb-6">Select Your Grade</h1>
     <div id="grades" class="flex flex-wrap justify-center gap-4 mb-10">
-      <!-- кнопки 5–11 классов -->
-      <button data-grade="5"  class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">5 Grade</button>
-      <button data-grade="6"  class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">6 Grade</button>
-      <button data-grade="7"  class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">7 Grade</button>
-      <button data-grade="8"  class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">8 Grade</button>
-      <button data-grade="9"  class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">9 Grade</button>
-      <button data-grade="10" class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">10 Grade</button>
-      <button data-grade="11" class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">11 Grade</button>
+      <button data-grade="5"
+              class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
+        5 Grade
+      </button>
+     <button data-grade="6"
+            class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
+      6 Grade
+    </button>
+    <button data-grade="7"
+            class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
+      7 Grade
+    </button>
+    <button data-grade="8"
+            class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
+      8 Grade
+    </button>
+    <button data-grade="9"
+            class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
+      9 Grade
+    </button>
+    <button data-grade="10"
+            class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
+      10 Grade
+    </button>
+      <button data-grade="11"
+              class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
+        11 Grade
+      </button>
     </div>
   </div>
 
@@ -66,30 +85,31 @@
     const tg = window.Telegram.WebApp;
 
     window.addEventListener("DOMContentLoaded", () => {
-      // 1) Раскрываем WebApp сразу
-      tg.expand();
-
       const splash = document.getElementById("splash");
       const main   = document.getElementById("mainContent");
 
-      // 2) Fade‑in (2s)
-      setTimeout(() => splash.classList.add("fade-in"), 50);
+      // 0. Раскрываем WebApp сразу
+      tg.expand();
 
-      // 3) После 4с — start fade‑out (1s)
+      // 1. Плавный fade-in (добавляем класс), длится 2с
+      setTimeout(() => {
+        splash.classList.add("fade-in");
+      }, 50);
+
+      // 2. Через 2s + 2s удержания = 4000ms начинаем fade-out
       setTimeout(() => {
         splash.classList.remove("fade-in");
         splash.classList.add("fade-out");
       }, 4000);
 
-      // 4) После 5с — скрываем сплэш и показываем контент (fade‑in 1s)
+      // 3. Через 4000 + 1000 = 5000ms скрываем сплэш и показываем контент
       setTimeout(() => {
         splash.style.display = "none";
-        main.classList.add("visible");
-
-        // Повторный tg.expand(), чтобы Telegram точно развернул на весь экран
+        main.classList.add("show");
+        // Ещё раз раскрываем WebApp, чтобы контент растянулся
         tg.expand();
 
-        // Навешиваем обработчики
+        // Навешиваем обработчики кнопок
         document.querySelectorAll("#grades button").forEach(btn => {
           btn.addEventListener("click", () => {
             const grade = btn.dataset.grade;
