@@ -19,12 +19,10 @@
       opacity: 0;
       z-index: 50;
     }
-    /* Fade‑in 2s */
     .fade-in {
       opacity: 1;
       transition: opacity 2s ease-in-out;
     }
-    /* Fade‑out 1s */
     .fade-out {
       opacity: 0;
       transition: opacity 1s ease-in-out;
@@ -34,16 +32,17 @@
       opacity: 0;
       transition: opacity 1s ease-in-out;
     }
-    /* Класс для появления контента */
     #mainContent.visible {
       opacity: 1;
     }
   </style>
 </head>
-<body class="bg-white text-orange-500 overflow-hidden">
+<body class="bg-white text-orange-500">
 
   <!-- 1) СПЛЭШ-СКРИН -->
   <div id="splash">
+    <!-- используем абсолютный путь, если logo.png не в корне, например:
+         src="https://raw.githubusercontent.com/ВАШ‑ЛОГИН/РЕПО/main/logo.png" -->
     <img src="large_3084024A-6C58-4487-BBB6-78627A76B06B.png" alt="Logo" class="w-32 h-auto">
   </div>
 
@@ -52,35 +51,14 @@
        class="flex flex-col items-center justify-center min-h-screen p-4">
     <h1 class="text-3xl font-bold mb-6">Select Your Grade</h1>
     <div id="grades" class="flex flex-wrap justify-center gap-4 mb-10">
-      <button data-grade="5"
-              class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
-        5 Grade
-      </button>
-      <button data-grade="6"
-            class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
-      6 Grade
-    </button>
-    <button data-grade="7"
-            class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
-      7 Grade
-    </button>
-    <button data-grade="8"
-            class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
-      8 Grade
-    </button>
-    <button data-grade="9"
-            class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
-      9 Grade
-    </button>
-    <button data-grade="10"
-            class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
-      10 Grade
-    </button>
-      
-      <button data-grade="11"
-              class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
-        11 Grade
-      </button>
+      <!-- кнопки 5–11 классов -->
+      <button data-grade="5"  class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">5 Grade</button>
+      <button data-grade="6"  class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">6 Grade</button>
+      <button data-grade="7"  class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">7 Grade</button>
+      <button data-grade="8"  class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">8 Grade</button>
+      <button data-grade="9"  class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">9 Grade</button>
+      <button data-grade="10" class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">10 Grade</button>
+      <button data-grade="11" class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">11 Grade</button>
     </div>
   </div>
 
@@ -88,30 +66,34 @@
     const tg = window.Telegram.WebApp;
 
     window.addEventListener("DOMContentLoaded", () => {
+      // 1) Раскрываем WebApp сразу
+      tg.expand();
+
       const splash = document.getElementById("splash");
-      const main = document.getElementById("mainContent");
+      const main   = document.getElementById("mainContent");
 
-      // 1) Моментально запускаем fade-in (2s)
-      splash.classList.add("fade-in");
+      // 2) Fade‑in (2s)
+      setTimeout(() => splash.classList.add("fade-in"), 50);
 
-      // 2) После 2s (fade-in) + 2s (удержание) = 4000ms — стартуем fade-out (1s)
+      // 3) После 4с — start fade‑out (1s)
       setTimeout(() => {
         splash.classList.remove("fade-in");
         splash.classList.add("fade-out");
       }, 4000);
 
-      // 3) После 5000ms (4s + 1s fade-out) — скрываем сплэш, показываем контент (fade-in 1s)
+      // 4) После 5с — скрываем сплэш и показываем контент (fade‑in 1s)
       setTimeout(() => {
         splash.style.display = "none";
         main.classList.add("visible");
+
+        // Повторный tg.expand(), чтобы Telegram точно развернул на весь экран
         tg.expand();
 
-        // Навешиваем обработчики кнопок Grade
+        // Навешиваем обработчики
         document.querySelectorAll("#grades button").forEach(btn => {
           btn.addEventListener("click", () => {
             const grade = btn.dataset.grade;
-            alert(`You selected: ${grade} Grade`);
-            // тут можно tg.sendData(...) или переход к тестам
+            tg.sendData(JSON.stringify({ action: "selectGrade", grade }));
           });
         });
       }, 5000);
