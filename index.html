@@ -6,57 +6,63 @@
   <title>Vocab Trainer</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    /* Убедимся, что контент под сплэшем не кликабелен */
+    #mainContent { visibility: hidden; }
+  </style>
 </head>
-<body class="bg-white text-orange-500 flex flex-col items-center justify-center min-h-screen p-4">
-  <!-- Заголовок -->
-  <h1 class="text-3xl font-bold mb-6">Select Your Grade</h1>
+<body class="bg-white text-orange-500">
 
-  <!-- Блок кнопок с классами -->
-  <div id="grades" class="flex flex-wrap justify-center gap-4 mb-10">
-    <button data-grade="5"
-            class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
-      5 Grade
-    </button>
-    <button data-grade="6"
-            class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
-      6 Grade
-    </button>
-    <button data-grade="7"
-            class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
-      7 Grade
-    </button>
-    <button data-grade="8"
-            class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
-      8 Grade
-    </button>
-    <button data-grade="9"
-            class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
-      9 Grade
-    </button>
-    <button data-grade="10"
-            class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
-      10 Grade
-    </button>
-    <button data-grade="11"
-            class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
-      11 Grade
-    </button>
+  <!-- 1) СПЛЭШ-СКРИН -->
+  <div id="splash"
+       class="fixed inset-0 bg-white flex items-center justify-center z-50">
+    <!-- Логотип (положите logo.png рядом с index.html или в img/) -->
+    <img src="large_3084024A-6C58-4487-BBB6-78627A76B06B.png" alt="Logo" class="w-32 h-auto">
+  </div>
+
+  <!-- 2) ОСНОВНОЙ КОНТЕНТ -->
+  <div id="mainContent"
+       class="flex flex-col items-center justify-center min-h-screen p-4">
+    <h1 class="text-3xl font-bold mb-6">Select Your Grade</h1>
+    <div id="grades" class="flex flex-wrap justify-center gap-4 mb-10">
+      <button data-grade="5"
+              class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
+        5 Grade
+      </button>
+      <!-- … кнопки 6–11 классов … -->
+      <button data-grade="11"
+              class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
+        11 Grade
+      </button>
+    </div>
   </div>
 
   <script>
-    // Инициализируем Telegram WebApp
+    // Telegram WebApp init (будем вызывать после сплеша)
     const tg = window.Telegram.WebApp;
-    tg.expand();
 
-    // Обработчик клика по любой кнопке grade
-    document.querySelectorAll("#grades button").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const grade = btn.dataset.grade;
-        // Здесь вы можете переходить к своей логике:
-        // например, отправлять grade боту или загружать тесты по выбранному классу
-        // tg.sendData(JSON.stringify({ action: "selectGrade", grade }));
-        alert(`You selected: ${grade} Grade`);
-      });
+    // Ждём загрузки DOM
+    window.addEventListener("DOMContentLoaded", () => {
+      // 2 секунды – показываем сплэш
+      setTimeout(() => {
+        // Скрываем сплэш
+        document.getElementById("splash").style.display = "none";
+        // Показываем основной контент
+        const main = document.getElementById("mainContent");
+        main.style.visibility = "visible";
+
+        // Разворачиваем WebApp и можем дальше инициализировать логику
+        tg.expand();
+
+        // Хэндлеры для кнопок классов
+        document.querySelectorAll("#grades button").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const grade = btn.dataset.grade;
+            alert(`You selected: ${grade} Grade`);
+            // здесь tg.sendData или переход к тестам
+          });
+        });
+      }, 2000);
     });
   </script>
 </body>
