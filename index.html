@@ -7,20 +7,20 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-white text-orange-800">
-  <h1>Welcome to Vocab Trainer!!</h1>
-  <button id="startBtn">Начать тест</button>
+<body class="bg-white text-orange-500">
+  <h1>Welcome to Vocab Trainer!</h1>
+  <button id="startBtn">Start test</button>
 
   <script>
     // Инициализация
     const tg = window.Telegram.WebApp;
     tg.expand();      // разворачивает Web App на весь экран
-    tg.MainButton.setText("Закончить тест");
+    tg.MainButton.setText("Закінчити тест");
 
     document
       .getElementById("startBtn")
       .addEventListener("click", () => {
-        alert("Здесь будет ваш тест");
+        alert("Тут буде ваш тест");
         // потом – отправка данных в бота через tg.sendData(...)
       });
   </script>
