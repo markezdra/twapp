@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    /* Сплэш-экран на весь экран, изначально невидим */
+    /* СПЛЭШ: изначально прозрачный */
     #splash {
       position: fixed;
       inset: 0;
@@ -16,45 +16,47 @@
       justify-content: center;
       background: #fff;
       opacity: 0;
+      transition: opacity 2s ease-in-out; /* для fade-in */
       z-index: 50;
     }
-    /* fade-in за 2s до opacity:1 */
-    .fade-in {
-      opacity: 1;
+    /* Класс для fade-in */
+    #splash.visible {
+      opacity: 1;  /* прозрачность до 1 за 2 сек */
       transition: opacity 2s ease-in-out;
     }
-    /* fade-out за 1s до opacity:0 */
-    .fade-out {
+    /* Переопределение для fade-out: переход на 0 за 1 сек */
+    #splash.hiding {
       opacity: 0;
       transition: opacity 1s ease-in-out;
     }
-    /* Контент скрыт до появления */
+    /* КОНТЕНТ: изначально скрыт */
     #mainContent {
       opacity: 0;
       transition: opacity 1s ease-in-out;
     }
     /* Контент появляется */
-    #mainContent.show {
+    #mainContent.visible {
       opacity: 1;
     }
   </style>
 </head>
 <body class="bg-white text-orange-500 overflow-hidden">
 
-  <!-- 1) СПЛЭШ-СКРИН -->
+  <!-- СПЛЭШ-СКРИН -->
   <div id="splash">
     <img src="large_3084024A-6C58-4487-BBB6-78627A76B06B.png" alt="Logo" class="w-32 h-auto">
   </div>
 
-  <!-- 2) ОСНОВНОЙ КОНТЕНТ -->
-  <div id="mainContent" class="flex flex-col items-center justify-center min-h-screen p-4">
+  <!-- ОСНОВНОЙ КОНТЕНТ -->
+  <div id="mainContent"
+       class="flex flex-col items-center justify-center min-h-screen p-4">
     <h1 class="text-3xl font-bold mb-6">Select Your Grade</h1>
     <div id="grades" class="flex flex-wrap justify-center gap-4 mb-10">
       <button data-grade="5"
               class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
         5 Grade
       </button>
-     <button data-grade="6"
+      <button data-grade="6"
             class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
       6 Grade
     </button>
@@ -85,38 +87,37 @@
     const tg = window.Telegram.WebApp;
 
     window.addEventListener("DOMContentLoaded", () => {
+      tg.expand();
+
       const splash = document.getElementById("splash");
       const main   = document.getElementById("mainContent");
 
-      // 0. Раскрываем WebApp сразу
-      tg.expand();
-
-      // 1. Плавный fade-in (добавляем класс), длится 2с
+      // 1) Небольшая задержка, чтобы браузер применил CSS
       setTimeout(() => {
-        splash.classList.add("fade-in");
+        // 2) Fade-in: добавляем класс .visible (2 сек)
+        splash.classList.add("visible");
+
+        // 3) Через 2 сек (fade-in) + 2 сек удержания = 4000 ms → запускаем fade-out
+        setTimeout(() => {
+          splash.classList.remove("visible");
+          splash.classList.add("hiding");
+        }, 4000);
+
+        // 4) Через 4000 + 1000 = 5000 ms убираем splash и показываем контент
+        setTimeout(() => {
+          splash.style.display = "none";
+          main.classList.add("visible");
+          tg.expand();
+
+          // Вешаем клики на кнопки
+          document.querySelectorAll("#grades button").forEach(btn =>
+            btn.addEventListener("click", () => {
+              tg.sendData(JSON.stringify({ selectGrade: btn.dataset.grade }));
+            })
+          );
+        }, 5000);
+
       }, 50);
-
-      // 2. Через 2s + 2s удержания = 4000ms начинаем fade-out
-      setTimeout(() => {
-        splash.classList.remove("fade-in");
-        splash.classList.add("fade-out");
-      }, 4000);
-
-      // 3. Через 4000 + 1000 = 5000ms скрываем сплэш и показываем контент
-      setTimeout(() => {
-        splash.style.display = "none";
-        main.classList.add("show");
-        // Ещё раз раскрываем WebApp, чтобы контент растянулся
-        tg.expand();
-
-        // Навешиваем обработчики кнопок
-        document.querySelectorAll("#grades button").forEach(btn => {
-          btn.addEventListener("click", () => {
-            const grade = btn.dataset.grade;
-            tg.sendData(JSON.stringify({ action: "selectGrade", grade }));
-          });
-        });
-      }, 5000);
     });
   </script>
 </body>
