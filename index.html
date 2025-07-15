@@ -7,36 +7,47 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    /* По‑умолчанию сплэш скрыт */
+    /* Сплэш на весь экран */
     #splash {
       position: fixed;
-      inset: 0;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: white;
+      background-color: #ffffff;
       opacity: 0;
-      transition: opacity 1s ease-in-out;
       z-index: 50;
     }
-    /* Класс для видимости */
-    #splash.show {
+    /* Fade‑in 2s */
+    .fade-in {
       opacity: 1;
+      transition: opacity 2s ease-in-out;
     }
-    /* Скрываем основной контент под сплэшем */
+    /* Fade‑out 1s */
+    .fade-out {
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+    /* Основной контент скрыт до появления */
     #mainContent {
-      visibility: hidden;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+    /* Класс для появления контента */
+    #mainContent.visible {
+      opacity: 1;
     }
   </style>
 </head>
-<body class="bg-white text-orange-500">
+<body class="bg-white text-orange-500 overflow-hidden">
 
-  <!-- СПЛЭШ-СКРИН -->
+  <!-- 1) СПЛЭШ-СКРИН -->
   <div id="splash">
     <img src="large_3084024A-6C58-4487-BBB6-78627A76B06B.png" alt="Logo" class="w-32 h-auto">
   </div>
 
-  <!-- ОСНОВНОЙ КОНТЕНТ -->
+  <!-- 2) ОСНОВНОЙ КОНТЕНТ -->
   <div id="mainContent"
        class="flex flex-col items-center justify-center min-h-screen p-4">
     <h1 class="text-3xl font-bold mb-6">Select Your Grade</h1>
@@ -45,7 +56,7 @@
               class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
         5 Grade
       </button>
-       <button data-grade="6"
+      <button data-grade="6"
             class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
       6 Grade
     </button>
@@ -65,7 +76,7 @@
             class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
       10 Grade
     </button>
-      <!-- … кнопки 6–11 классов … -->
+      
       <button data-grade="11"
               class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
         11 Grade
@@ -80,31 +91,30 @@
       const splash = document.getElementById("splash");
       const main = document.getElementById("mainContent");
 
-      // Запускаем fade‑in
-      setTimeout(() => {
-        splash.classList.add("show");
-      }, 50);
+      // 1) Моментально запускаем fade-in (2s)
+      splash.classList.add("fade-in");
 
-      // Через 3 секунды (1s fade‑in + 2s удержания) запускаем fade‑out
+      // 2) После 2s (fade-in) + 2s (удержание) = 4000ms — стартуем fade-out (1s)
       setTimeout(() => {
-        splash.classList.remove("show");
-      }, 3000);
+        splash.classList.remove("fade-in");
+        splash.classList.add("fade-out");
+      }, 4000);
 
-      // Через 4 секунды скрываем splash и показываем контент
+      // 3) После 5000ms (4s + 1s fade-out) — скрываем сплэш, показываем контент (fade-in 1s)
       setTimeout(() => {
         splash.style.display = "none";
-        main.style.visibility = "visible";
+        main.classList.add("visible");
         tg.expand();
 
-        // Инициализируем обработчики кнопок
+        // Навешиваем обработчики кнопок Grade
         document.querySelectorAll("#grades button").forEach(btn => {
           btn.addEventListener("click", () => {
             const grade = btn.dataset.grade;
-            // здесь будет ваша логика
             alert(`You selected: ${grade} Grade`);
+            // тут можно tg.sendData(...) или переход к тестам
           });
         });
-      }, 4000);
+      }, 5000);
     });
   </script>
 </body>
