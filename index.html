@@ -146,8 +146,7 @@
       "10": [/* 18 названий для 10 класса */],
       "11": [/* 18 названий для 11 класса */]
     };
-    for (let g = 5; g <= 11; g++) {
-      gradeUnitsMap[g] = Array.from({ length: 18 }, (_, i) => `Unit ${i+1}`);
+    , (_, i) => `Unit ${i+1}`);
     }
 
     const splash = document.getElementById('splash');
