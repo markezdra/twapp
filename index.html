@@ -1,84 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Vocab Trainer</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    /* СПЛЭШ: изначально прозрачный */
+    /* СПЛЭШ */
     #splash {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #fff;
-      opacity: 0;
-      transition: opacity 2s ease-in-out; /* для fade-in */
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: #fff; opacity: 0;
+      transition: opacity 2s ease-in-out; /* fade-in duration */
       z-index: 50;
     }
-    /* Класс для fade-in */
     #splash.visible {
-      opacity: 1;  /* прозрачность до 1 за 2 сек */
+      opacity: 1; /* fade-in to fully visible in 2s */
       transition: opacity 2s ease-in-out;
     }
-    /* Переопределение для fade-out: переход на 0 за 1 сек */
     #splash.hiding {
-      opacity: 0;
+      opacity: 0; /* fade-out to invisible in 1s */
       transition: opacity 1s ease-in-out;
     }
-    /* КОНТЕНТ: изначально скрыт */
-    #mainContent {
-      opacity: 0;
-      transition: opacity 1s ease-in-out;
+
+    /* ЭКРАНЫ */
+    .screen {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 1rem; background: #fff;
+      opacity: 0; transform: scale(0.95);
+      transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+      pointer-events: none;
     }
-    /* Контент появляется */
-    #mainContent.visible {
-      opacity: 1;
+    .screen.visible {
+      opacity: 1; transform: scale(1);
+      pointer-events: all;
+    }
+
+    /* Кнопки юнитов анимируются */
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.5); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    .unit-button {
+      opacity: 0;
+    }
+    .unit-button.show {
+      animation: popIn 0.5s forwards;
     }
   </style>
 </head>
-<body class="bg-white text-orange-500 overflow-hidden">
+<body class="bg-white text-orange-500 overflow-hidden relative">
 
-  <!-- СПЛЭШ-СКРИН -->
+  <!-- СПЛЭШ -->
   <div id="splash">
-    <img src="large_3084024A-6C58-4487-BBB6-78627A76B06B.png" alt="Logo" class="w-32 h-auto">
+    <img src="logo.png" alt="Logo" class="w-32 h-auto">
   </div>
 
-  <!-- ОСНОВНОЙ КОНТЕНТ -->
-  <div id="mainContent"
-       class="flex flex-col items-center justify-center min-h-screen p-4">
+  <!-- ЭКРАН 1: Выбор класса -->
+  <div id="screen-grades" class="screen">
     <h1 class="text-3xl font-bold mb-6">Select Your Grade</h1>
-    <div id="grades" class="flex flex-wrap justify-center gap-4 mb-10">
-      <button data-grade="5"
-              class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
-        5 Grade
+    <div id="grades" class="flex flex-wrap justify-center gap-4"></div>
+  </div>
+
+  <!-- ЭКРАН 2: Список юнитов -->
+  <div id="screen-units" class="screen">
+    <h1 id="units-title" class="text-3xl font-bold mb-6"></h1>
+    <div id="units" class="flex flex-wrap justify-center gap-4"></div>
+  </div>
+
+  <!-- ЭКРАН 3: Меню внутри юнита -->
+  <div id="screen-unitMenu" class="screen">
+    <h1 id="unit-menu-title" class="text-2xl font-semibold mb-4"></h1>
+    <div class="flex flex-col gap-4">
+      <button id="btn-vocab" class="px-6 py-3 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
+        Vocabulary
       </button>
-      <button data-grade="6"
-            class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
-      6 Grade
-    </button>
-    <button data-grade="7"
-            class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
-      7 Grade
-    </button>
-    <button data-grade="8"
-            class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
-      8 Grade
-    </button>
-    <button data-grade="9"
-            class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
-      9 Grade
-    </button>
-    <button data-grade="10"
-            class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
-      10 Grade
-    </button>
-      <button data-grade="11"
-              class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
-        11 Grade
+      <button id="btn-ex" class="px-6 py-3 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
+        Exercises
       </button>
     </div>
   </div>
@@ -86,39 +86,100 @@
   <script>
     const tg = window.Telegram.WebApp;
 
+    // Пример структуры Grade → Units (замените реальными названиями)
+    const gradeUnitsMap = {
+      "5":  ["Intro", "Numbers", /* … */ "Review"],
+      "6":  ["Fractions", "Decimals", /* … */ "Quiz"],
+      "7":  [/* … 18 юнитов … */],
+      "8":  [/* … */],
+      "9":  [/* … */],
+      "10": [/* … */],
+      "11": ["Advanced", /* … */ "Exam"]
+    };
+
+    const splash       = document.getElementById("splash");
+    const screenGrades = document.getElementById("screen-grades");
+    const screenUnits  = document.getElementById("screen-units");
+    const screenMenu   = document.getElementById("screen-unitMenu");
+    const gradesCont   = document.getElementById("grades");
+    const unitsCont    = document.getElementById("units");
+
     window.addEventListener("DOMContentLoaded", () => {
       tg.expand();
 
-      const splash = document.getElementById("splash");
-      const main   = document.getElementById("mainContent");
+      // 0ms → 2s: fade-in
+      setTimeout(() => splash.classList.add("visible"), 0);
 
-      // 1) Небольшая задержка, чтобы браузер применил CSS
+      // 2s → 4s: hold visible
+
+      // at 4s: start fade-out (1s)
       setTimeout(() => {
-        // 2) Fade-in: добавляем класс .visible (2 сек)
-        splash.classList.add("visible");
+        splash.classList.remove("visible");
+        splash.classList.add("hiding");
+      }, 4000);
 
-        // 3) Через 2 сек (fade-in) + 2 сек удержания = 4000 ms → запускаем fade-out
-        setTimeout(() => {
-          splash.classList.remove("visible");
-          splash.classList.add("hiding");
-        }, 4000);
-
-        // 4) Через 4000 + 1000 = 5000 ms убираем splash и показываем контент
-        setTimeout(() => {
-          splash.style.display = "none";
-          main.classList.add("visible");
-          tg.expand();
-
-          // Вешаем клики на кнопки
-          document.querySelectorAll("#grades button").forEach(btn =>
-            btn.addEventListener("click", () => {
-              tg.sendData(JSON.stringify({ selectGrade: btn.dataset.grade }));
-            })
-          );
-        }, 5000);
-
-      }, 50);
+      // at 5s: hide splash, show grades screen
+      setTimeout(() => {
+        splash.style.display = "none";
+        showScreen(screenGrades);
+        populateGrades();
+      }, 5000);
     });
+
+    function showScreen(screen) {
+      [screenGrades, screenUnits, screenMenu].forEach(s => {
+        s.classList.remove("visible");
+      });
+      setTimeout(() => {
+        screen.classList.add("visible");
+      }, 50);
+    }
+
+    function populateGrades() {
+      gradesCont.innerHTML = "";
+      for (let g = 5; g <= 11; g++) {
+        const btn = document.createElement("button");
+        btn.textContent = `${g} Grade`;
+        btn.dataset.grade = g;
+        btn.className = "px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition";
+        btn.addEventListener("click", () => {
+          showUnitsScreen(g);
+        });
+        gradesCont.appendChild(btn);
+      }
+    }
+
+    function showUnitsScreen(grade) {
+      // clear and generate units
+      unitsCont.innerHTML = "";
+      document.getElementById("units-title").textContent = `${grade} Grade Units`;
+      const list = gradeUnitsMap[grade] || [];
+      list.forEach((name, idx) => {
+        const u = document.createElement("button");
+        u.textContent = `Unit ${idx+1}: ${name}`;
+        u.dataset.unitIndex = idx+1;
+        u.dataset.unitName = name;
+        u.className = "unit-button px-5 py-2 border-2 border-orange-500 rounded m-2";
+        unitsCont.appendChild(u);
+        // animate
+        setTimeout(() => u.classList.add("show"), idx * 100);
+        u.addEventListener("click", () => {
+          showUnitMenuScreen(grade, idx+1, name);
+        });
+      });
+      showScreen(screenUnits);
+    }
+
+    function showUnitMenuScreen(grade, unitIndex, unitName) {
+      document.getElementById("unit-menu-title").textContent =
+        `Grade ${grade} — Unit ${unitIndex}: ${unitName}`;
+      // set up vocab/ex buttons
+      document.getElementById("btn-vocab").onclick = () =>
+        tg.sendData(JSON.stringify({ action: "vocabulary", grade, unitIndex, unitName }));
+      document.getElementById("btn-ex").onclick = () =>
+        tg.sendData(JSON.stringify({ action: "exercises", grade, unitIndex, unitName }));
+      showScreen(screenMenu);
+    }
   </script>
 </body>
 </html>
