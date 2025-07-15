@@ -1,24 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Telegram Web App</title>
-
-  <!-- 1) Подключаем Tailwind через CDN -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vocab Trainer</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- 2) Затем ваш Telegram WebApp JS -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
-<body class="bg-white text-orange-800">  <!-- тёмно‑оранжевый текст -->
-  <h1 class="text-2xl font-bold mb-4">Welcome to Vocab Trainer!</h1>
-  <button id="startBtn"
-          class="px-4 py-2 border-2 border-orange-800 rounded hover:bg-orange-800 hover:text-white transition">
+<body class="bg-white text-orange-500 flex flex-col items-center justify-center min-h-screen p-4">
+  <!-- Заголовок -->
+  <h1 class="text-3xl font-bold mb-6">Welcome to Vocab Trainer!</h1>
+
+  <!-- Изображение по центру -->
+  <img 
+    src="large_3084024A-6C58-4487-BBB6-78627A76B06B.png" 
+    alt="Vocab Image"
+    class="w-48 h-auto mb-8 rounded shadow-lg"
+  />
+
+  <!-- Кнопка по центру с отступами -->
+  <button 
+    id="startBtn"
+    class="px-6 py-3 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition mb-10"
+  >
     Start test
   </button>
 
   <script>
-    // Инициализация Telegram WebApp
     const tg = window.Telegram.WebApp;
     tg.expand();
     tg.MainButton.setText("Закінчити тест");
@@ -26,8 +34,8 @@
     document
       .getElementById("startBtn")
       .addEventListener("click", () => {
+        // тут будет запуск теста
         alert("Тут буде ваш тест");
-        // потом – отправка данных в бота через tg.sendData(...)
       });
   </script>
 </body>
