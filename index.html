@@ -18,19 +18,37 @@
     #splash.visible { opacity: 1; }
     #splash.hiding { opacity: 0; transition: opacity 1s ease-in-out; }
 
-    /* ЭКРАНЫ */
+    /* Общие стили экрана */
     .screen {
       position: absolute; inset: 0;
-      display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+      display: flex; flex-direction: column;
       padding: 1rem; background: #fff;
       opacity: 0; transform: scale(0.95);
-      transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+      transition: opacity 0.5s ease, transform 0.5s ease;
       pointer-events: none;
-      overflow: hidden;
     }
     .screen.visible {
       opacity: 1; transform: scale(1);
       pointer-events: all;
+    }
+
+    /* Конкретно для экрана выбора класса — центрируем */
+    #screen-grades {
+      align-items: center;
+      justify-content: center;
+      overflow: visible;
+    }
+
+    /* Экран юнитов — прокручивается */
+    #screen-units {
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    /* Экран меню юнита */
+    #screen-unitMenu {
+      align-items: center;
+      justify-content: center;
     }
 
     /* Анимация кнопок юнитов */
@@ -44,42 +62,41 @@
     }
   </style>
 </head>
-<body class="bg-white text-orange-500 relative">
+<body class="bg-white text-orange-500 relative overflow-hidden">
 
-  <!-- СПЛЭШ-СКРИН -->
+  <!-- СПЛЭШ -->
   <div id="splash">
     <img src="logo.png" alt="Logo" class="w-32 h-auto">
   </div>
 
-  <!-- ЭКРАН 1: Выбор класса (без скролла) -->
+  <!-- ЭКРАН 1: Выбор класса (Центрирован) -->
   <div id="screen-grades" class="screen">
-    <h1 class="text-3xl font-bold mb-6">Choose Your Grade</h1>
-    <div id="grades"
-         class="flex flex-wrap justify-center gap-4 w-full max-w-md mx-auto">
-      <!-- Кнопки генерируются скриптом -->
+    <h1 class="text-3xl font-bold mb-6 text-center">Choose Your Grade</h1>
+    <div id="grades" class="flex flex-wrap gap-4">
+      <!-- JS сгенерирует сюда кнопки -->
     </div>
   </div>
 
   <!-- ЭКРАН 2: Список юнитов (скроллится) -->
   <div id="screen-units" class="screen">
-    <h1 id="units-title" class="text-3xl font-bold mb-6">Units</h1>
+    <h1 id="units-title" class="text-3xl font-bold mb-6 text-center">Units</h1>
     <div id="units"
-         class="flex flex-col items-center gap-4 w-full max-w-md mx-auto overflow-y-auto"
+         class="flex flex-col gap-4 w-full max-w-md mx-auto overflow-y-auto"
          style="max-height: 60vh;">
-      <!-- Кнопки генерируются скриптом -->
+      <!-- JS сгенерирует сюда кнопки -->
     </div>
   </div>
 
   <!-- ЭКРАН 3: Меню внутри юнита -->
   <div id="screen-unitMenu" class="screen">
-    <h1 id="unit-menu-title" class="text-2xl font-semibold mb-6">Options</h1>
-    <div class="flex flex-col gap-4 w-full max-w-md mx-auto">
+    <h1 id="unit-menu-title" class="text-2xl font-semibold mb-6 text-center">Options</h1>
+    <div class="flex flex-col gap-4 w-full max-w-xs mx-auto">
       <button id="btn-vocab"
-              class="px-6 py-3 w-full text-center whitespace-normal border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
+              class="px-6 py-3 w-full text-center border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
         Vocabulary
       </button>
       <button id="btn-ex"
-              class="px-6 py-3 w-full text-center whitespace-normal border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
+              class="px-6 py-3 w-full text-center border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">
         Exercises
       </button>
     </div>
@@ -88,7 +105,7 @@
   <script>
     const tg = window.Telegram.WebApp;
 
-    // Пример структуры Grade → Units
+    // Структура Grade → Units
     const gradeUnitsMap = {
       "5":  ["Intro", "Numbers", /* … */ "Review"],
       "6":  ["Fractions", "Decimals", /* … */ "Quiz"],
@@ -108,14 +125,14 @@
 
     window.addEventListener("DOMContentLoaded", () => {
       tg.expand();
-      // Splash: fade-in 0–2s
+      // fade-in 0–2s
       setTimeout(() => splash.classList.add("visible"), 0);
-      // 2–4s hold, then fade-out 4–5s
+      // hold 2–4s, then fade-out 4–5s
       setTimeout(() => {
         splash.classList.remove("visible");
         splash.classList.add("hiding");
       }, 4000);
-      // 5s: hide splash, show grades
+      // at 5s: hide splash, show grades
       setTimeout(() => {
         splash.style.display = "none";
         showScreen(screenGrades);
@@ -135,8 +152,8 @@
       for (let g = 5; g <= 11; g++) {
         const btn = document.createElement("button");
         btn.textContent = `${g} Grade`;
-        btn.dataset.grade = g;
-        btn.className = "px-5 py-3 w-32 text-center border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition";
+        btn.dataset.grade   = g;
+        btn.className       = "px-5 py-3 w-24 text-center border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition";
         btn.addEventListener("click", () => showUnitsScreen(g));
         gradesCont.appendChild(btn);
       }
@@ -148,10 +165,10 @@
       const list = gradeUnitsMap[grade] || [];
       list.forEach((name, idx) => {
         const u = document.createElement("button");
-        u.textContent = `Unit ${idx+1}: ${name}`;
-        u.dataset.unitIndex = idx+1;
+        u.textContent      = `Unit ${idx+1}: ${name}`;
+        u.dataset.unitIndex= idx+1;
         u.dataset.unitName = name;
-        u.className = "unit-button px-5 py-3 w-full text-left whitespace-normal border-2 border-orange-500 rounded";
+        u.className        = "unit-button px-5 py-3 w-full text-left border-2 border-orange-500 rounded";
         unitsCont.appendChild(u);
         setTimeout(() => u.classList.add("show"), idx * 100);
         u.addEventListener("click", () => showUnitMenuScreen(grade, idx+1, name));
