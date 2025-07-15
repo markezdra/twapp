@@ -9,50 +9,70 @@
   <style>
     /* СПЛЭШ */
     #splash {
-      position: fixed; inset:0;
-      display: flex; align-items:center; justify-content:center;
-      background:#fff; opacity:0;
-      transition:opacity 2s ease-in-out; z-index:50;
-    }
-    #splash.visible { opacity:1; }
-    #splash.hiding { opacity:0; transition:opacity 1s ease-in-out; }
-
-    /* Переходим к экранам */
-    #mainContent, #unitsContent {
-      opacity:0; transition: opacity 0.5s ease-in-out;
-      display: none;
-    }
-    #mainContent.visible,
-    #unitsContent.visible {
+      position: fixed;
+      inset: 0;
       display: flex;
-      opacity:1;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      opacity: 0;
+      transition: opacity 2s ease-in-out;
+      z-index: 50;
+    }
+    #splash.visible {
+      opacity: 1;
+      transition: opacity 2s ease-in-out;
+    }
+    #splash.hiding {
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
     }
 
-    /* Юниты: кнопки с pop‑in */
+    /* КОНТЕНТ */
+    #mainContent, #unitsContent {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+    #mainContent.visible, #unitsContent.visible {
+      display: flex;
+      opacity: 1;
+    }
+
+    /* ЭКРАН СПИСКА ЮНИТОВ: прокрутка */
+    #unitsContent {
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 1rem;
+      min-height: 100vh;
+      overflow-y: auto;
+    }
+
+    /* Анимация появления юнитов */
     @keyframes popIn {
-      from { opacity:0; transform: scale(0.5); }
-      to   { opacity:1; transform: scale(1); }
+      from { opacity: 0; transform: scale(0.5); }
+      to   { opacity: 1; transform: scale(1); }
     }
     .unit-button {
-      opacity:0;
+      opacity: 0;
     }
     .unit-button.show {
       animation: popIn 0.4s forwards;
     }
   </style>
 </head>
-<body class="bg-white text-orange-500 overflow-hidden">
+<body class="bg-white text-orange-500 overflow-hidden flex flex-col items-center justify-center">
 
   <!-- СПЛЭШ -->
   <div id="splash">
-    <img src="logo.png" alt="Logo" class="w-32 h-auto"/>
+    <img src="logo.png" alt="Logo" class="w-32 h-auto" />
   </div>
 
   <!-- ЭКРАН ВЫБОРА КЛАССА -->
-  <div id="mainContent"
-       class="flex flex-col items-center justify-center min-h-screen p-4">
-    <h1 class="text-3xl font-bold mb-6">Select Your Grade</h1>
-    <div id="grades" class="flex flex-wrap justify-center gap-4 mb-10">
+  <div id="mainContent" class="flex flex-col items-center justify-center min-h-screen p-4">
+    <h1 class="text-3xl font-bold mb-6 text-center">Select Your Grade</h1>
+    <div id="grades" class="flex flex-wrap justify-center gap-4">
       <button data-grade="5"  class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">5 Grade</button>
       <button data-grade="6"  class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">6 Grade</button>
       <button data-grade="7"  class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">7 Grade</button>
@@ -64,90 +84,132 @@
   </div>
 
   <!-- ЭКРАН СПИСКА ЮНИТОВ -->
-  <div id="unitsContent"
-       class="flex flex-col items-center justify-start min-h-screen p-4 overflow-y-auto"
-       style="gap:1rem">
-    <h1 id="unitsTitle" class="text-3xl font-bold mb-6">Units</h1>
-    <div id="units" class="flex flex-col gap-4 w-full max-w-md mx-auto mb-10">
-      <!-- сюда JS вставит кнопки Unit 1…Unit N -->
-    </div>
-    <button id="backToGrades"
-            class="mt-auto px-4 py-2 border-2 border-gray-400 rounded hover:bg-gray-200 transition">
-      ← Back to Grades
-    </button>
+  <div id="unitsContent" class="flex flex-col items-center" style="display: none; opacity: 0;">
+    <h1 id="unitsTitle" class="text-3xl font-bold mb-6 text-center">Units for Grade</h1>
+    <div id="units" class="flex flex-col gap-4 w-full max-w-md mb-10"></div>
+    <button id="backToGrades" class="px-4 py-2 border-2 border-gray-400 rounded hover:bg-gray-200 transition">← Back to Grades</button>
   </div>
 
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // Подготовка данных: по 12 юнитов для примера
-    const gradeUnitsMap = {};
-    for(let g=5;g<=11;g++){
-      gradeUnitsMap[g] = Array.from({length:12},(_,i)=>`Unit ${i+1}`);
+    // Данные: 18 юнитов для каждого класса
+    // Определите названия 18 юнитов для каждого класса:
+    const gradeUnitsMap = {
+      "5": [
+        /* 18 названий для 5 класса */
+        "Numbers and Operations",
+        "Algebra Foundations",
+        "Geometry Basics",
+        "Proportions and Ratios",
+        "Integers",
+        "Expressions",
+        "Linear Equations",
+        "Inequalities",
+        "Polynomials",
+        "Factorization",
+        "Coordinate Plane",
+        "Statistics Intro",
+        "Probability Basics",
+        "Functions",
+        "Graphing Functions",
+        "Transformations",
+        "Systems of Equations",
+        "Review 5th Grade"
+      ],
+      "6": [
+        /* 18 названий для 6 класса */
+        "Rational Numbers",
+        "Exponents",
+        "Radicals",
+        "Expressions and Equations",
+        "Ratios and Rates",
+        "Proportional Relationships",
+        "Geometry Basics",
+        "Area and Perimeter",
+        "Surface Area and Volume",
+        "Statistics and Data",
+        "Probability",
+        "Integers",
+        "Absolute Value",
+        "Inequalities",
+        "Coordinate Geometry",
+        "Functions Intro",
+        "Transformations",
+        "Review 6th Grade"
+      ],
+      // аналогично определите для классов 7–11 ниже
+      "7": [/* 18 названий для 7 класса */],
+      "8": [/* 18 названий для 8 класса */],
+      "9": [/* 18 названий для 9 класса */],
+      "10": [/* 18 названий для 10 класса */],
+      "11": [/* 18 названий для 11 класса */]
+    };
+    for (let g = 5; g <= 11; g++) {
+      gradeUnitsMap[g] = Array.from({ length: 18 }, (_, i) => `Unit ${i+1}`);
     }
 
-    const splash       = document.getElementById("splash");
-    const mainContent  = document.getElementById("mainContent");
-    const unitsContent = document.getElementById("unitsContent");
-    const grades       = document.getElementById("grades");
-    const unitsDiv     = document.getElementById("units");
-    const unitsTitle   = document.getElementById("unitsTitle");
-    const backBtn      = document.getElementById("backToGrades");
+    const splash = document.getElementById('splash');
+    const mainContent = document.getElementById('mainContent');
+    const unitsContent = document.getElementById('unitsContent');
+    const grades = document.getElementById('grades');
+    const unitsDiv = document.getElementById('units');
+    const unitsTitle = document.getElementById('unitsTitle');
+    const backBtn = document.getElementById('backToGrades');
 
-    window.addEventListener("DOMContentLoaded",()=>{
-      // 0–2s fade-in
-      setTimeout(()=>splash.classList.add("visible"),0);
-      // 4s start fade-out
-      setTimeout(()=>{
-        splash.classList.remove("visible");
-        splash.classList.add("hiding");
-      },4000);
-      // 5s swap to mainContent
-      setTimeout(()=>{
-        splash.style.display='none';
+    window.addEventListener('DOMContentLoaded', () => {
+      // Fade-in splash 0–2s
+      setTimeout(() => splash.classList.add('visible'), 0);
+      // Hold until 4s, then fade-out 4–5s
+      setTimeout(() => {
+        splash.classList.remove('visible');
+        splash.classList.add('hiding');
+      }, 4000);
+      // At 5s, hide splash and show main
+      setTimeout(() => {
+        splash.style.display = 'none';
         showMain();
-      },5000);
+      }, 5000);
     });
 
-    // Показать выбор класса
-    function showMain(){
-      unitsContent.classList.remove("visible");
-      unitsContent.style.display='none';
-      mainContent.style.display='flex';
-      setTimeout(()=>mainContent.classList.add("visible"),50);
+    function showMain() {
+      unitsContent.classList.remove('visible');
+      unitsContent.style.display = 'none';
+      mainContent.style.display = 'flex';
+      setTimeout(() => mainContent.classList.add('visible'), 50);
+      attachGradeHandlers();
     }
 
-    // Показать список юнитов для grade
-    function showUnits(grade){
-      // очистка
-      unitsDiv.innerHTML='';
+    function attachGradeHandlers() {
+      grades.querySelectorAll('button').forEach(btn => {
+        btn.onclick = () => showUnits(btn.dataset.grade);
+      });
+    }
+
+    function showUnits(grade) {
+      unitsDiv.innerHTML = '';
       unitsTitle.textContent = `Units for Grade ${grade}`;
-      // спрячем main, покажем unitsContent
-      mainContent.classList.remove("visible");
-      setTimeout(()=>{
-        mainContent.style.display='none';
-        unitsContent.style.display='flex';
-        setTimeout(()=>unitsContent.classList.add("visible"),50);
-        // генерим кнопки
-        gradeUnitsMap[grade].forEach((name,idx)=>{
-          const btn=document.createElement("button");
+      mainContent.classList.remove('visible');
+      setTimeout(() => {
+        mainContent.style.display = 'none';
+        unitsContent.style.display = 'flex';
+        unitsContent.classList.add('visible');
+
+        // Generate 18 unit buttons
+        gradeUnitsMap[grade].forEach((name, idx) => {
+          const btn = document.createElement('button');
           btn.textContent = name;
-          btn.className   = "unit-button px-5 py-3 w-full text-left border-2 border-orange-500 rounded";
-          btn.onclick     = ()=>tg.sendData(JSON.stringify({grade,unit:idx+1}));
+          btn.dataset.unitIndex = idx+1;
+          btn.className = 'unit-button px-5 py-3 w-full text-left border-2 border-orange-500 rounded';
+          btn.onclick = () => tg.sendData(JSON.stringify({ grade, unit: idx+1 }));
           unitsDiv.appendChild(btn);
-          setTimeout(()=>btn.classList.add("show"), idx*100);
+          setTimeout(() => btn.classList.add('show'), idx * 100);
         });
-      },500);
+
+        backBtn.onclick = showMain;
+      }, 500);
     }
-
-    // Вешаем клики на grade-кнопки
-    grades.querySelectorAll("button").forEach(btn=>{
-      btn.onclick = ()=>showUnits(btn.dataset.grade);
-    });
-
-    // Кнопка «Back»
-    backBtn.onclick = ()=>showMain();
   </script>
 </body>
 </html>
