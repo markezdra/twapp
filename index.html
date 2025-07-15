@@ -143,10 +143,17 @@
         splash.classList.add("hiding");
       }, 4000);
       // Show mainContent at 5s
-      setTimeout(() => {
-        splash.style.display = "none";
-        main.classList.add("visible");
-      }, 5000);
+     setTimeout(() => {
+  splash.style.display = "none";
+  // 1) объявляем, что mainContent теперь должен быть flex (иначе opacity-трансишн не сработает)
+  main.style.display = "flex";
+  // 2) даём браузеру микрозадержку, а потом включаем плавное проявление
+  setTimeout(() => {
+    main.classList.add("visible");
+    tg.expand();
+    // тут же навешиваете клики на кнопки классов, как прежде
+  }, 50);
+}, 5000);
 
       // Обработчики для кнопок классов
       gradesDiv.querySelectorAll("button").forEach(btn => {
