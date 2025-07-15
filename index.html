@@ -7,171 +7,175 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    /* СПЛЭШ */
+    /* СПЛЭШ: изначально прозрачный */
     #splash {
-      position: fixed; inset: 0;
-      display: flex; align-items: center; justify-content: center;
-      background: #fff; opacity: 0;
-      transition: opacity 2s ease-in-out;
-      z-index: 50;
-    }
-    #splash.visible { opacity: 1; }
-    #splash.hiding { opacity: 0; transition: opacity 1s ease-in-out; }
-
-    /* ЭКРАНЫ */
-    .screen {
-      position: absolute; inset: 0;
-      display: none;
-      flex-direction: column;
+      position: fixed;
+      inset: 0;
+      display: flex;
       align-items: center;
       justify-content: center;
-      padding: 1rem;
       background: #fff;
+      opacity: 0;
+      transition: opacity 2s ease-in-out; /* для fade-in */
+      z-index: 50;
     }
-    .screen.visible {
+    /* Класс для fade-in */
+    #splash.visible {
+      opacity: 1;  /* прозрачность до 1 за 2 сек */
+      transition: opacity 2s ease-in-out;
+    }
+    /* Переопределение для fade-out: переход на 0 за 1 сек */
+    #splash.hiding {
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+    /* КОНТЕНТ: изначально скрыт */
+    #mainContent, #unitsContent {
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+      display: none;
+    }
+    /* Контент появляется */
+    #mainContent.visible, #unitsContent.visible {
       display: flex;
+      opacity: 1;
     }
-
-    /* АНІМАЦІЯ ЮНІТІВ */
+    /* Экран списка юнитов, прокрутка */
+    #unitsContent {
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 1rem;
+      overflow-y: auto;
+      gap: 1rem;
+    }
+    /* Юниты: кнопки с pop-in */
     @keyframes popIn {
       from { opacity: 0; transform: scale(0.5); }
       to   { opacity: 1; transform: scale(1); }
     }
-    .unit-button { opacity: 0; }
-    .unit-button.show { animation: popIn 0.4s forwards; }
-
-    /* СПИСОК ЮНІТІВ */
-    #unitsContent {
-      overflow-y: auto;
+    .unit-button {
+      opacity: 0;
+    }
+    .unit-button.show {
+      animation: popIn 0.4s forwards;
     }
   </style>
 </head>
-<body class="bg-white text-orange-500 relative overflow-hidden">
+<body class="bg-white text-orange-500 overflow-hidden">
 
-  <!-- СПЛЭШ -->
+  <!-- СПЛЭШ-СКРИН -->
   <div id="splash">
-    <img src="logo.png" alt="Logo" class="w-32 h-auto"/>
+    <img src="logo.png" alt="Logo" class="w-32 h-auto">
   </div>
 
-  <!-- ЭКРАН ВЫБОРА КЛАССА -->
-  <div id="mainContent" class="screen">
-    <h1 class="text-3xl font-bold mb-6 text-center">Select Your Grade</h1>
-    <div id="grades" class="flex flex-wrap justify-center gap-4">
-      <!-- Кнопки классов -->
-      <button data-grade="5"  class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">5 Grade</button>
-      <button data-grade="6"  class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">6 Grade</button>
-      <button data-grade="7"  class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">7 Grade</button>
-      <button data-grade="8"  class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">8 Grade</button>
-      <button data-grade="9"  class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">9 Grade</button>
+  <!-- ОСНОВНОЙ КОНТЕНТ: Выбор класса -->
+  <div id="mainContent" class="flex flex-col items-center justify-center min-h-screen p-4">
+    <h1 class="text-3xl font-bold mb-6">Select Your Grade</h1>
+    <div id="grades" class="flex flex-wrap justify-center gap-4 mb-10">
+      <button data-grade="5" class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">5 Grade</button>
+      <button data-grade="6" class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">6 Grade</button>
+      <button data-grade="7" class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">7 Grade</button>
+      <button data-grade="8" class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">8 Grade</button>
+      <button data-grade="9" class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">9 Grade</button>
       <button data-grade="10" class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">10 Grade</button>
       <button data-grade="11" class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">11 Grade</button>
     </div>
   </div>
 
-  <!-- ЭКРАН СПИСКА ЮНІТІВ -->
-  <div id="unitsContent" class="screen">
-    <h1 id="unitsTitle" class="text-3xl font-bold mb-6 text-center">Units</h1>
-    <div id="units" class="flex flex-col gap-4 w-full max-w-md mx-auto mb-10" style="max-height:60vh;">
-      <!-- Сюда JS вставит 18 кнопок -->
+  <!-- КОНТЕНТ: Список юнитов для выбранного класса -->
+  <div id="unitsContent" class="flex flex-col items-center justify-start min-h-screen p-4">
+    <h1 id="unitsTitle" class="text-3xl font-bold mb-6">Units</h1>
+    <div id="units" class="flex flex-col items-center gap-4 w-full max-w-md">
+      <!-- JS вставит сюда 18 кнопок -->
     </div>
-    <button id="backButton" class="px-4 py-2 border-2 border-gray-400 rounded hover:bg-gray-200 transition">← Back</button>
   </div>
 
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // Здесь вручную задайте по 18 названий юнитов для каждого класса
+    // Вручную впишите по 18 названий для каждого класса
     const gradeUnitsMap = {
       "5": [
-        /* 18 названий для 5 Grade */
         "Numbers and Operations",
         "Algebra Foundations",
         "Geometry Basics",
-        "Ratios and Proportions",
+        "Proportions and Ratios",
         "Integers",
         "Expressions",
         "Linear Equations",
         "Inequalities",
         "Polynomials",
-        "Coordinate Geometry",
         "Functions",
         "Statistics",
         "Probability",
-        "Exponents and Roots",
-        "Quadratic Equations",
-        "Systems of Equations",
-        "Sequences and Series",
+        "Transformations",
+        "Coordinate Geometry",
+        "Trigonometry",
+        "Sequences",
+        "Exponents",
         "Data Analysis"
       ],
       "6": [/* 18 названий для 6 Grade */],
-      "7": [/* ... */],
+      "7": [/* 18 названий для 7 Grade */],
       "8": [/* ... */],
       "9": [/* ... */],
       "10": [/* ... */],
       "11": [/* ... */]
     };
 
-    const splash       = document.getElementById("splash");
-    const mainContent  = document.getElementById("mainContent");
+    const splash = document.getElementById("splash");
+    const main = document.getElementById("mainContent");
     const unitsContent = document.getElementById("unitsContent");
-    const unitsDiv     = document.getElementById("units");
-    const unitsTitle   = document.getElementById("unitsTitle");
-    const backButton   = document.getElementById("backButton");
+    const gradesDiv = document.getElementById("grades");
+    const unitsDiv = document.getElementById("units");
+    const unitsTitle = document.getElementById("unitsTitle");
 
-    window.addEventListener("DOMContentLoaded", ()=>{
-      // splash fade-in 2s
-      setTimeout(()=> splash.classList.add("visible"), 0);
-      // hold then fade-out at 4s
-      setTimeout(()=>{
-        splash.classList.remove("visible"); splash.classList.add("hiding");
+    window.addEventListener("DOMContentLoaded", () => {
+      // Splash: fade-in 0–2s
+      setTimeout(() => splash.classList.add("visible"), 0);
+      // Fade-out at 4s
+      setTimeout(() => {
+        splash.classList.remove("visible");
+        splash.classList.add("hiding");
       }, 4000);
-      // at 5s show mainContent
-      setTimeout(()=>{
+      // Show mainContent at 5s
+      setTimeout(() => {
         splash.style.display = "none";
-        showScreen(mainContent);
+        main.classList.add("visible");
       }, 5000);
-    });
 
-    // Показать заданный экран
-    function showScreen(screen) {
-      [mainContent, unitsContent].forEach(s => {
-        s.classList.remove("visible"); s.style.display = "none";
+      // Обработчики для кнопок классов
+      gradesDiv.querySelectorAll("button").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const grade = btn.dataset.grade;
+          showUnitsScreen(grade);
+        });
       });
-      screen.style.display = "flex";
-      setTimeout(()=> screen.classList.add("visible"), 50);
-    }
-
-    // При клике на класс
-    document.querySelectorAll("#grades button").forEach(btn=>{
-      btn.onclick = () => {
-        const grade = btn.dataset.grade;
-        showUnits(grade);
-      };
     });
 
-    // Показать список юнитов для класса
-    function showUnits(grade) {
-      // очищаем контейнер
+    function showUnitsScreen(grade) {
+      // Скрыть mainContent
+      main.classList.remove("visible");
+      main.style.display = "none";
+      // Очистить и заполнить unitsDiv
       unitsDiv.innerHTML = "";
       unitsTitle.textContent = `Units for Grade ${grade}`;
-      // создаем 18 кнопок
-      const list = gradeUnitsMap[grade] || [];
-      for(let i=0; i<18; i++){
-        const name = list[i] || `Unit ${i+1}`;
-        const btn = document.createElement("button");
-        btn.textContent = name;
-        btn.className = "unit-button px-5 py-3 w-full text-left border-2 border-orange-500 rounded";
-        btn.onclick = () => tg.sendData(JSON.stringify({grade, unit: i+1}));
-        unitsDiv.appendChild(btn);
-        setTimeout(()=> btn.classList.add("show"), i*100);
-      }
-      // показать экран юнитов
-      showScreen(unitsContent);
+      gradeUnitsMap[grade].forEach((name, idx) => {
+        const b = document.createElement("button");
+        b.textContent = name;
+        b.className = "unit-button px-5 py-3 w-full text-left border-2 border-orange-500 rounded";
+        b.addEventListener("click", () => {
+          tg.sendData(JSON.stringify({ selectGrade: grade, selectUnit: idx+1 }));
+        });
+        unitsDiv.appendChild(b);
+        setTimeout(() => b.classList.add("show"), idx * 100);
+      });
+      // Показать unitsContent
+      unitsContent.classList.add("visible");
     }
-
-    // Назад к классам
-    backButton.onclick = () => showScreen(mainContent);
   </script>
 </body>
 </html>
