@@ -16,31 +16,32 @@
       justify-content: center;
       background: #fff;
       opacity: 0;
-      transition: opacity 2s ease-in-out; /* для fade-in */
+      transition: opacity 2s ease-in-out;
       z-index: 50;
     }
-    /* Класс для fade-in */
     #splash.visible {
-      opacity: 1;  /* прозрачность до 1 за 2 сек */
+      opacity: 1;
       transition: opacity 2s ease-in-out;
     }
-    /* Переопределение для fade-out: переход на 0 за 1 сек */
     #splash.hiding {
       opacity: 0;
       transition: opacity 1s ease-in-out;
     }
-    /* КОНТЕНТ: изначально скрыт */
-        /* Изначально скрыты, плавное появление */
-    #mainContent, #unitsContent {
+
+    /* Основной и экран юнитов: изначально скрыты, плавное появление */
+    #mainContent, #unitsContent, #menuContent {
       opacity: 0;
       transition: opacity 1s ease-in-out;
       display: none;
     }
-    /* Контент появляется */
-    #mainContent.visible, #unitsContent.visible {
+    /* Когда visible — flex и opacity=1 */
+    #mainContent.visible,
+    #unitsContent.visible,
+    #menuContent.visible {
       display: flex;
       opacity: 1;
     }
+
     /* Экран списка юнитов, прокрутка */
     #unitsContent {
       flex-direction: column;
@@ -51,14 +52,23 @@
       overflow-y: auto;
       gap: 1rem;
     }
-    /* Юниты: кнопки с pop-in */
+
+    /* Экран меню юнита */
+    #menuContent {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 1rem;
+      gap: 1rem;
+    }
+
+    /* Анимация для кнопок юнитов */
     @keyframes popIn {
       from { opacity: 0; transform: scale(0.5); }
       to   { opacity: 1; transform: scale(1); }
     }
-    .unit-button {
-      opacity: 0;
-    }
+    .unit-button { opacity: 0; }
     .unit-button.show {
       animation: popIn 0.4s forwards;
     }
@@ -75,24 +85,31 @@
   <div id="mainContent" class="flex flex-col items-center justify-center min-h-screen p-4">
     <h1 class="text-3xl font-bold mb-6">Select Your Grade</h1>
     <div id="grades" class="flex flex-wrap justify-center gap-4 mb-10">
-      <button data-grade="5" class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">5 Grade</button>
-      <button data-grade="6" class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">6 Grade</button>
-      <button data-grade="7" class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">7 Grade</button>
-      <button data-grade="8" class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">8 Grade</button>
-      <button data-grade="9" class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">9 Grade</button>
+      <button data-grade="5"  class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">5 Grade</button>
+      <button data-grade="6"  class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">6 Grade</button>
+      <button data-grade="7"  class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">7 Grade</button>
+      <button data-grade="8"  class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">8 Grade</button>
+      <button data-grade="9"  class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">9 Grade</button>
       <button data-grade="10" class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">10 Grade</button>
       <button data-grade="11" class="px-5 py-2 border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">11 Grade</button>
     </div>
   </div>
 
-  <!-- КОНТЕНТ: Список юнитов для выбранного класса -->
-  <div id="unitsContent" style="overflow-y:auto; max-height:60vh; width:100%;" class="flex flex-col items-center justify-start min-h-screen p-4">
-   <h1 id="unitsTitle" class="text-3xl font-bold mt-8 mb-4 text-center">
-  Units for Grade X
-</h1>
+  <!-- ЭКРАН ЮНИТОВ -->
+  <div id="unitsContent" class="flex flex-col items-center justify-start min-h-screen p-4" style="overflow-y:auto; max-height:60vh; gap:1rem;">
+    <h1 id="unitsTitle" class="text-3xl font-bold mt-8 mb-4 text-center">Units for Grade X</h1>
     <div id="units" class="flex flex-col items-center gap-4 w-full max-w-md">
       <!-- JS вставит сюда 18 кнопок -->
     </div>
+  </div>
+
+  <!-- ЭКРАН МЕНЮ ЮНИТА -->
+  <div id="menuContent" class="flex flex-col items-center justify-center min-h-screen p-4" style="gap:1rem;">
+    <h1 id="menuTitle" class="text-3xl font-bold text-center">Unit Menu</h1>
+    <button id="btn-vocab" class="px-6 py-3 w-full text-center border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">Vocabulary</button>
+    <button id="btn-l1"    class="px-6 py-3 w-full text-center border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">LEVEL 1</button>
+    <button id="btn-l2"    class="px-6 py-3 w-full text-center border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">LEVEL 2</button>
+    <button id="btn-l3"    class="px-6 py-3 w-full text-center border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">LEVEL 3</button>
   </div>
 
   <script>
@@ -102,93 +119,107 @@
     // Вручную впишите по 18 названий для каждого класса
     const gradeUnitsMap = {
       "5": [
-"1. The number system",
-"2. 2D shape and pattern",
-"3. Numbers and sequences",
-"4. Averages",
-"5. Addition and subtraction",
-"6. 3D shapes",
-"7. Fractions, decimals and percentages",
-"8. Probability",
-"9. Addition and subtraction of fractions",
-"10. Angles",
-"11. Multiplication and division",
-"12. Data",
-"13. Ratio and proportion",
-"14. Area and perimeter",
-"15. Multiplying and dividing fractions and decimals",
-"16. Time",
-"17. Number and the laws of arithmetic",
-"18. Position and direction"
+        "1. The number system",
+        "2. 2D shape and pattern",
+        "3. Numbers and sequences",
+        "4. Averages",
+        "5. Addition and subtraction",
+        "6. 3D shapes",
+        "7. Fractions, decimals and percentages",
+        "8. Probability",
+        "9. Addition and subtraction of fractions",
+        "10. Angles",
+        "11. Multiplication and division",
+        "12. Data",
+        "13. Ratio and proportion",
+        "14. Area and perimeter",
+        "15. Multiplying and dividing fractions and decimals",
+        "16. Time",
+        "17. Number and the laws of arithmetic",
+        "18. Position and direction"
       ],
       "6": [
-"1. The number system",
-"2. Numbers and sequences",
-"3. Averages",
-"4. Addition and subtraction (1)",
-"5. 2D shapes",
-"6. Fractions and percentages",
-"7. Exploring measures",
-"8. Addition and subtraction (2)",
-"9. Probability",
-"10. Multiplication and division (1)",
-"11. 3D shapes",
-"12. Ratio and proportion",
-"13. Angles",
-"14. Multiplication and division (2)",
-"15. Data",
-"16. The laws of arithmetic",
-"17. Transformations"
+        "1. The number system",
+        "2. Numbers and sequences",
+        "3. Averages",
+        "4. Addition and subtraction (1)",
+        "5. 2D shapes",
+        "6. Fractions and percentages",
+        "7. Exploring measures",
+        "8. Addition and subtraction (2)",
+        "9. Probability",
+        "10. Multiplication and division (1)",
+        "11. 3D shapes",
+        "12. Ratio and proportion",
+        "13. Angles",
+        "14. Multiplication and division (2)",
+        "15. Data",
+        "16. The laws of arithmetic",
+        "17. Transformations",
+        "18. Review 6th Grade"
       ],
       "7": [
-"1. Integers",
-"2. Expressions, formulae and equations",
-"3. Place value and rounding",
-"4. Decimals",
-"5. Angles and constructions",
-"6. Collecting data",
-"7. Fractions",
-"8. Shapes and symmetry",
-"9. Sequences and functions",
-"10. Percentages",
-"11. Graphs",
-"12. Ratio and proportion",
-"13. Probability",
-"14. Position and transformation",
-"15. Shapes, area and volume",
-"16. Interpreting and discussing results"
+        "1. Integers",
+        "2. Expressions, formulae and equations",
+        "3. Place value and rounding",
+        "4. Decimals",
+        "5. Angles and constructions",
+        "6. Collecting data",
+        "7. Fractions",
+        "8. Shapes and symmetry",
+        "9. Sequences and functions",
+        "10. Percentages",
+        "11. Graphs",
+        "12. Ratio and proportion",
+        "13. Probability",
+        "14. Position and transformation",
+        "15. Shapes, area and volume",
+        "16. Interpreting and discussing results",
+        "17. Advanced Topics 7",
+        "18. Final Review 7"
       ],
-      "8": ["підручника не зайшов"],
+      "8": [
+        /* впиши здесь 18 названий для 8 Grade */
+      ],
       "9": [
-"1. Number and calculation",
-"2. Expressions and formulae",
-"3. Decimals, percentages and rounding",
-"4. Equations and inequalities",
-"5. Angles",
-"6. Statistical investigations",
-"7. Shapes and measurements",
-"8. Fractions",
-"9. Sequences and functions",
-"10. Graphs",
-"11. Ratio and proportion",
-"12. Probability",
-"13. Position and transformation",
-"14. Volume, surface area and symmetry",
-"15. Interpreting and discussing results"
+        "1. Number and calculation",
+        "2. Expressions and formulae",
+        "3. Decimals, percentages and rounding",
+        "4. Equations and inequalities",
+        "5. Angles",
+        "6. Statistical investigations",
+        "7. Shapes and measurements",
+        "8. Fractions",
+        "9. Sequences and functions",
+        "10. Graphs",
+        "11. Ratio and proportion",
+        "12. Probability",
+        "13. Position and transformation",
+        "14. Volume, surface area and symmetry",
+        "15. Interpreting and discussing results",
+        "16. Review 9th Grade",
+        "17. Exam Prep 9",
+        "18. Final Review 9"
       ],
-      "10": ["підручника не зайшов"],
-      "11": ["підручника не зайшов"]
+      "10": [
+        /* впиши здесь 18 названий для 10 Grade */
+      ],
+      "11": [
+        /* впиши здесь 18 названий для 11 Grade */
+      ]
     };
 
-    const splash = document.getElementById("splash");
-    const main = document.getElementById("mainContent");
+    const splash       = document.getElementById("splash");
+    const main         = document.getElementById("mainContent");
     const unitsContent = document.getElementById("unitsContent");
-    const gradesDiv = document.getElementById("grades");
-    const unitsDiv = document.getElementById("units");
-    const unitsTitle = document.getElementById("unitsTitle");
+    const menuContent  = document.getElementById("menuContent");
+    const gradesDiv    = document.getElementById("grades");
+    const unitsDiv     = document.getElementById("units");
+    const unitsTitle   = document.getElementById("unitsTitle");
+    const menuTitle    = document.getElementById("menuTitle");
 
     window.addEventListener("DOMContentLoaded", () => {
-      // Splash: fade-in 0–2s
+      // Splash fade-in 0–2s
       setTimeout(() => splash.classList.add("visible"), 0);
       // Fade-out at 4s
       setTimeout(() => {
@@ -196,46 +227,56 @@
         splash.classList.add("hiding");
       }, 4000);
       // Show mainContent at 5s
-     setTimeout(() => {
-  splash.style.display = "none";
-  // 1) объявляем, что mainContent теперь должен быть flex (иначе opacity-трансишн не сработает)
-  main.style.display = "flex";
-  // 2) даём браузеру микрозадержку, а потом включаем плавное проявление
-  setTimeout(() => {
-    main.classList.add("visible");
-    tg.expand();
-    // тут же навешиваете клики на кнопки классов, как прежде
-  }, 50);
-}, 5000);
+      setTimeout(() => {
+        splash.style.display = "none";
+        main.style.display = "flex";
+        setTimeout(() => main.classList.add("visible"), 50);
+      }, 5000);
 
-      // Обработчики для кнопок классов
+      // Grade buttons handler
       gradesDiv.querySelectorAll("button").forEach(btn => {
         btn.addEventListener("click", () => {
-          const grade = btn.dataset.grade;
-          showUnitsScreen(grade);
+          showUnitsScreen(btn.dataset.grade);
         });
       });
     });
 
     function showUnitsScreen(grade) {
-      // Скрыть mainContent
       main.classList.remove("visible");
-      main.style.display = "none";
-      // Очистить и заполнить unitsDiv
+      setTimeout(() => main.style.display = "none", 500);
+
       unitsDiv.innerHTML = "";
-      unitsTitle.textContent = `Units for Grade ${grade}`;
+      unitsTitle.textContent = `Units for Grade ${grade}`;
       gradeUnitsMap[grade].forEach((name, idx) => {
         const b = document.createElement("button");
         b.textContent = name;
         b.className = "unit-button px-5 py-3 w-full text-left border-2 border-orange-500 rounded";
-        b.addEventListener("click", () => {
-          tg.sendData(JSON.stringify({ selectGrade: grade, selectUnit: idx+1 }));
-        });
+        b.addEventListener("click", () => showMenuScreen(grade, idx+1));
         unitsDiv.appendChild(b);
         setTimeout(() => b.classList.add("show"), idx * 100);
       });
-      // Показать unitsContent
-      unitsContent.classList.add("visible");
+
+      unitsContent.style.display = "flex";
+      setTimeout(() => unitsContent.classList.add("visible"), 50);
+    }
+
+    function showMenuScreen(grade, unitIndex) {
+      unitsContent.classList.remove("visible");
+      setTimeout(() => unitsContent.style.display = "none", 500);
+
+      menuTitle.textContent = `Options for Unit ${unitIndex}`;
+
+      document.getElementById("btn-vocab").onclick = () =>
+        tg.sendData(JSON.stringify({ selectGrade: grade, selectUnit: unitIndex, action: "vocabulary" }));
+      document.getElementById("btn-l1").onclick = () =>
+        tg.sendData(JSON.stringify({ selectGrade: grade, selectUnit: unitIndex, action: "level1" }));
+      document.getElementById("btn-l2").onclick = () =>
+        tg.sendData(JSON.stringify({ selectGrade: grade, selectUnit: unitIndex, action: "level2" }));
+      document.getElementById("btn-l3").onclick = () =>
+        tg.sendData(JSON.stringify({ selectGrade: grade, selectUnit: unitIndex, action: "level3" }));
+
+      menuContent.style.display = "flex";
+      setTimeout(() => menuContent.classList.add("visible"), 50);
     }
   </script>
 </body>
