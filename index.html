@@ -9,79 +9,52 @@
   <style>
     /* СПЛЭШ: изначально прозрачный */
     #splash {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #fff;
-      opacity: 0;
-      transition: opacity 2s ease-in-out;
-      z-index: 50;
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: #fff; opacity: 0;
+      transition: opacity 2s ease-in-out; z-index:50;
     }
-    #splash.visible {
-      opacity: 1;
-      transition: opacity 2s ease-in-out;
-    }
-    #splash.hiding {
-      opacity: 0;
-      transition: opacity 1s ease-in-out;
-    }
+    #splash.visible { opacity:1; }
+    #splash.hiding { opacity:0; transition: opacity 1s ease-in-out; }
 
-    /* Основной и экран юнитов: изначально скрыты, плавное появление */
+    /* Основной, экран юнитов и меню: скрыты, плавное появление */
     #mainContent, #unitsContent, #menuContent {
-      opacity: 0;
-      transition: opacity 1s ease-in-out;
-      display: none;
+      opacity: 0; transition: opacity 1s ease-in-out; display:none;
     }
-    /* Когда visible — flex и opacity=1 */
-    #mainContent.visible,
-    #unitsContent.visible,
-    #menuContent.visible {
-      display: flex;
-      opacity: 1;
+    #mainContent.visible, #unitsContent.visible, #menuContent.visible {
+      display:flex; opacity:1;
     }
 
-    /* Экран списка юнитов, прокрутка */
+    /* Экран юнитов: прокрутка */
     #unitsContent {
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
-      padding: 1rem;
-      overflow-y: auto;
-      gap: 1rem;
+      flex-direction: column; align-items: center; justify-content: flex-start;
+      min-height:100vh; padding:1rem; overflow-y:auto; gap:1rem;
+      position: relative;
     }
-
     /* Экран меню юнита */
     #menuContent {
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 1rem;
-      gap: 1rem;
+      flex-direction: column; align-items: center; justify-content: center;
+      min-height:100vh; padding:1rem; gap:1rem;
+      position: relative;
     }
 
-    /* Анимация для кнопок юнитов */
-    @keyframes popIn {
-      from { opacity: 0; transform: scale(0.5); }
-      to   { opacity: 1; transform: scale(1); }
-    }
-    .unit-button { opacity: 0; }
-    .unit-button.show {
-      animation: popIn 0.4s forwards;
-    }
+    /* Основной экран */
+    #mainContent { position: relative; }
+
+    /* Анимация кнопок юнитов */
+    @keyframes popIn { from{opacity:0;transform:scale(0.5);} to{opacity:1;transform:scale(1);} }
+    .unit-button { opacity:0; }
+    .unit-button.show { animation: popIn 0.4s forwards; }
   </style>
 </head>
 <body class="bg-white text-orange-500 overflow-hidden">
 
-  <!-- СПЛЭШ-СКРИН -->
+  <!-- СПЛЭШ -->
   <div id="splash">
     <img src="logo.png" alt="Logo" class="w-32 h-auto">
   </div>
 
-  <!-- ОСНОВНОЙ КОНТЕНТ: Выбор класса -->
+  <!-- ЭКРАН ВЫБОРА КЛАССА -->
   <div id="mainContent" class="flex flex-col items-center justify-center min-h-screen p-4">
     <h1 class="text-3xl font-bold mb-6">Select Your Grade</h1>
     <div id="grades" class="flex flex-wrap justify-center gap-4 mb-10">
@@ -97,6 +70,8 @@
 
   <!-- ЭКРАН ЮНИТОВ -->
   <div id="unitsContent" class="flex flex-col items-center justify-start min-h-screen p-4" style="overflow-y:auto; max-height:60vh; gap:1rem;">
+    <!-- back arrow -->
+    <button id="backToGrades" class="absolute top-4 left-4 text-2xl">←</button>
     <h1 id="unitsTitle" class="text-3xl font-bold mt-8 mb-4 text-center">Units for Grade X</h1>
     <div id="units" class="flex flex-col items-center gap-4 w-full max-w-md">
       <!-- JS вставит сюда 18 кнопок -->
@@ -105,6 +80,8 @@
 
   <!-- ЭКРАН МЕНЮ ЮНИТА -->
   <div id="menuContent" class="flex flex-col items-center justify-center min-h-screen p-4" style="gap:1rem;">
+    <!-- back arrow -->
+    <button id="backToUnits" class="absolute top-4 left-4 text-2xl">←</button>
     <h1 id="menuTitle" class="text-3xl font-bold text-center">Unit Menu</h1>
     <button id="btn-vocab" class="px-6 py-3 w-full text-center border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">Vocabulary</button>
     <button id="btn-l1"    class="px-6 py-3 w-full text-center border-2 border-orange-500 rounded hover:bg-orange-500 hover:text-white transition">LEVEL 1</button>
@@ -117,7 +94,7 @@
     tg.expand();
 
     // Вручную впишите по 18 названий для каждого класса
-    const gradeUnitsMap = {
+ const gradeUnitsMap = {
       "5": [
         "1. The number system",
         "2. 2D shape and pattern",
@@ -217,6 +194,8 @@
     const unitsDiv     = document.getElementById("units");
     const unitsTitle   = document.getElementById("unitsTitle");
     const menuTitle    = document.getElementById("menuTitle");
+    const backToGrades = document.getElementById("backToGrades");
+    const backToUnits  = document.getElementById("backToUnits");
 
     window.addEventListener("DOMContentLoaded", () => {
       // Splash fade-in 0–2s
@@ -235,9 +214,27 @@
 
       // Grade buttons handler
       gradesDiv.querySelectorAll("button").forEach(btn => {
-        btn.addEventListener("click", () => {
-          showUnitsScreen(btn.dataset.grade);
-        });
+        btn.addEventListener("click", () => showUnitsScreen(btn.dataset.grade));
+      });
+
+      // Back arrow on units -> grades
+      backToGrades.addEventListener("click", () => {
+        unitsContent.classList.remove("visible");
+        setTimeout(() => {
+          unitsContent.style.display = "none";
+          main.style.display = "flex";
+          setTimeout(() => main.classList.add("visible"), 50);
+        }, 500);
+      });
+
+      // Back arrow on menu -> units
+      backToUnits.addEventListener("click", () => {
+        menuContent.classList.remove("visible");
+        setTimeout(() => {
+          menuContent.style.display = "none";
+          unitsContent.style.display = "flex";
+          setTimeout(() => unitsContent.classList.add("visible"), 50);
+        }, 500);
       });
     });
 
@@ -280,4 +277,4 @@
     }
   </script>
 </body>
-</html>
+</html>```
